@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cyber Garden Defense</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       ANIMATED BACKGROUND (behind everything, all screens)
+  ============================================================ -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- ============================================================
+       APP ROOT
+  ============================================================ -->
+  <div id="app">
+
+    <!-- ---------------- MAIN MENU ---------------- -->
+    <section id="screen-menu" class="screen active">
+      <div class="menu-panel glass-panel">
+        <h1 class="game-title">
+          <span class="glitch" data-text="CYBER GARDEN">CYBER GARDEN</span>
+          <span class="subtitle">DEFENSE</span>
+        </h1>
+        <p class="tagline">// DEFEND THE ROOT NODE FROM THE SWARM //</p>
+
+        <div class="menu-buttons">
+          <button id="btn-start" class="cyber-btn cyber-btn-primary">
+            <span class="btn-icon">▶</span> START GAME
+          </button>
+          <button id="btn-howto" class="cyber-btn">
+            <span class="btn-icon">?</span> HOW TO PLAY
+          </button>
+          <button id="btn-settings" class="cyber-btn">
+            <span class="btn-icon">⚙</span> SETTINGS
+          </button>
+        </div>
+
+        <div class="highscore-display">
+          HIGH SCORE: <span id="menu-highscore">0</span>
+        </div>
+      </div>
+      <div class="corner-brackets">
+        <span class="cb cb-tl"></span><span class="cb cb-tr"></span>
+        <span class="cb cb-bl"></span><span class="cb cb-br"></span>
+      </div>
+    </section>
+
+    <!-- ---------------- HOW TO PLAY MODAL ---------------- -->
+    <section id="screen-howto" class="screen">
+      <div class="menu-panel glass-panel scroll-panel">
+        <h2 class="panel-title">HOW TO PLAY</h2>
+        <div class="howto-content">
+          <div class="howto-block">
+            <h3>OBJECTIVE</h3>
+            <p>Synthetic drones are marching on your Root Node from the east. Deploy defense units along the grid to intercept and destroy them before they reach the west wall.</p>
+          </div>
+          <div class="howto-block">
+            <h3>ENERGY</h3>
+            <p>Energy regenerates automatically over time and is your currency for deploying units. Build Energy Generators to accelerate your income.</p>
+          </div>
+          <div class="howto-block">
+            <h3>UNITS</h3>
+            <ul id="howto-units-list" class="howto-list"></ul>
+          </div>
+          <div class="howto-block">
+            <h3>ENEMIES</h3>
+            <ul id="howto-enemies-list" class="howto-list"></ul>
+          </div>
+          <div class="howto-block">
+            <h3>CONTROLS</h3>
+            <p>Click a unit card to select it, then click an empty tile to deploy. Click the card again to cancel. Use PAUSE to access restart/resume.</p>
+          </div>
+        </div>
+        <button class="cyber-btn cyber-btn-primary btn-back">BACK</button>
+      </div>
+    </section>
+
+    <!-- ---------------- SETTINGS MODAL ---------------- -->
+    <section id="screen-settings" class="screen">
+      <div class="menu-panel glass-panel">
+        <h2 class="panel-title">SETTINGS</h2>
+        <div class="settings-row">
+          <label for="sfx-volume">SFX VOLUME</label>
+          <input type="range" id="sfx-volume" min="0" max="100" value="70">
+        </div>
+        <div class="settings-row">
+          <label for="music-volume">AMBIENT VOLUME</label>
+          <input type="range" id="music-volume" min="0" max="100" value="40">
+        </div>
+        <div class="settings-row">
+          <label for="screen-shake-toggle">SCREEN SHAKE</label>
+          <input type="checkbox" id="screen-shake-toggle" checked>
+        </div>
+        <div class="settings-row">
+          <label for="particles-toggle">PARTICLE DENSITY</label>
+          <select id="particles-toggle">
+            <option value="high">HIGH</option>
+            <option value="medium">MEDIUM</option>
+            <option value="low">LOW</option>
+          </select>
+        </div>
+        <button class="cyber-btn cyber-btn-primary btn-back">BACK</button>
+      </div>
+    </section>
+
+    <!-- ---------------- GAME SCREEN ---------------- -->
+    <section id="screen-game" class="screen">
+
+      <!-- HUD TOP BAR -->
+      <div id="hud-top" class="glass-panel">
+        <div class="hud-stat energy-stat">
+          <span class="hud-icon energy-icon">⚡</span>
+          <span id="hud-energy">0</span>
+        </div>
+
+        <div class="hud-stat wave-stat">
+          <span class="hud-label">WAVE</span>
+          <span id="hud-wave">1</span>
+          <div class="wave-progress-track">
+            <div id="wave-progress-fill" class="wave-progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="hud-stat lives-stat">
+          <span class="hud-label">CORE</span>
+          <div id="hud-lives" class="lives-icons"></div>
+        </div>
+
+        <div class="hud-stat score-stat">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score">0</span>
+        </div>
+
+        <button id="btn-pause" class="cyber-btn cyber-btn-small">II PAUSE</button>
+      </div>
+
+      <!-- UNIT SELECTION TRAY -->
+      <div id="unit-tray" class="glass-panel">
+        <!-- unit cards injected by JS -->
+      </div>
+
+      <!-- GAME CANVAS AREA -->
+      <div id="game-viewport">
+        <canvas id="game-canvas"></canvas>
+        <canvas id="fx-canvas"></canvas>
+        <div id="shake-layer"></div>
+        <div id="screen-flash"></div>
+      </div>
+
+    </section>
+
+    <!-- ---------------- PAUSE OVERLAY ---------------- -->
+    <section id="overlay-pause" class="overlay">
+      <div class="menu-panel glass-panel">
+        <h2 class="panel-title">SYSTEM PAUSED</h2>
+        <div class="menu-buttons">
+          <button id="btn-resume" class="cyber-btn cyber-btn-primary">RESUME</button>
+          <button id="btn-restart" class="cyber-btn">RESTART</button>
+          <button id="btn-quit" class="cyber-btn">QUIT TO MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------- GAME OVER OVERLAY ---------------- -->
+    <section id="overlay-gameover" class="overlay">
+      <div class="menu-panel glass-panel danger-panel">
+        <h2 class="panel-title glitch" data-text="CORE BREACHED">CORE BREACHED</h2>
+        <p class="result-sub">The root node has been compromised.</p>
+        <div class="result-stats">
+          <div class="result-row"><span>WAVE REACHED</span><span id="go-wave">1</span></div>
+          <div class="result-row"><span>SCORE</span><span id="go-score">0</span></div>
+          <div class="result-row"><span>HIGH SCORE</span><span id="go-highscore">0</span></div>
+        </div>
+        <div class="menu-buttons">
+          <button id="btn-retry" class="cyber-btn cyber-btn-primary">TRY AGAIN</button>
+          <button id="btn-gameover-menu" class="cyber-btn">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------- VICTORY OVERLAY ---------------- -->
+    <section id="overlay-victory" class="overlay">
+      <div class="menu-panel glass-panel victory-panel">
+        <h2 class="panel-title glitch" data-text="SECTOR CLEARED">SECTOR CLEARED</h2>
+        <p class="result-sub">All hostile waves neutralized. The Garden holds.</p>
+        <div class="result-stats">
+          <div class="result-row"><span>FINAL SCORE</span><span id="vic-score">0</span></div>
+          <div class="result-row"><span>HIGH SCORE</span><span id="vic-highscore">0</span></div>
+        </div>
+        <div class="menu-buttons">
+          <button id="btn-victory-again" class="cyber-btn cyber-btn-primary">PLAY AGAIN</button>
+          <button id="btn-victory-menu" class="cyber-btn">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Floating damage numbers / tooltips layer -->
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
